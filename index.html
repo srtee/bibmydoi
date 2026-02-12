@@ -92,6 +92,33 @@
             margin-top: 10px;
             font-size: 14px;
         }
+
+        .article-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .article-info.visible {
+            display: block;
+        }
+
+        .article-info-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #1e3a8a;
+        }
+
+        .article-info-label {
+            font-weight: 500;
+            color: #374151;
+        }
     </style>
 </head>
 <body>
@@ -100,6 +127,12 @@
         <div class="input-group">
             <input type="text" id="doiInput" placeholder="Enter DOI (e.g., 10.1000/xyz123)">
             <button id="fetchBtn">Get BibTeX</button>
+        </div>
+        <div id="articleInfo" class="article-info">
+            <div class="article-info-title" id="infoTitle"></div>
+            <div><span class="article-info-label">Authors:</span> <span id="infoAuthors"></span></div>
+            <div><span class="article-info-label">Journal:</span> <span id="infoJournal"></span></div>
+            <div><span class="article-info-label">Date:</span> <span id="infoDate"></span></div>
         </div>
         <textarea id="output" class="output" readonly placeholder="BibTeX will appear here..."></textarea>
         <div id="error" class="error"></div>
@@ -110,11 +143,90 @@
         const fetchBtn = document.getElementById('fetchBtn');
         const output = document.getElementById('output');
         const error = document.getElementById('error');
+        const articleInfo = document.getElementById('articleInfo');
+        const infoTitle = document.getElementById('infoTitle');
+        const infoAuthors = document.getElementById('infoAuthors');
+        const infoJournal = document.getElementById('infoJournal');
+        const infoDate = document.getElementById('infoDate');
+
+        function parseBibTeX(bibtex) {
+            const result = {
+                title: '',
+                author: '',
+                journal: '',
+                year: '',
+                month: '',
+                volume: '',
+                number: '',
+                pages: ''
+            };
+
+            // Match field = "value" or field = {value}
+            const fieldRegex = /(\w+)\s*=\s*(?:\{([^}]*)\}|"([^"]*)")/g;
+            let match;
+
+            while ((match = fieldRegex.exec(bibtex)) !== null) {
+                const field = match[1].toLowerCase();
+                const value = match[2] || match[3];
+
+                if (result.hasOwnProperty(field)) {
+                    result[field] = value;
+                }
+            }
+
+            return result;
+        }
+
+        function updateArticleInfo(bibtex) {
+            const parsed = parseBibTeX(bibtex);
+
+            if (parsed.title) {
+                infoTitle.textContent = parsed.title.replace(/\{\}/g, '');
+            }
+
+            if (parsed.author) {
+                // Format authors: "Last, First and Last, First" -> "First Last, First Last"
+                const authors = parsed.author
+                    .replace(/\{\}/g, '')
+                    .split(' and ')
+                    .map(author => {
+                        const [last, ...firstParts] = author.trim().split(',');
+                        if (firstParts.length > 0) {
+                            return firstParts.join(',').trim() + ' ' + last.trim();
+                        }
+                        return author.trim();
+                    })
+                    .join(', ');
+                infoAuthors.textContent = authors;
+            }
+
+            if (parsed.journal) {
+                let journalDetails = parsed.journal.replace(/\{\}/g, '');
+                if (parsed.volume) journalDetails += `, vol. ${parsed.volume}`;
+                if (parsed.number) journalDetails += `, no. ${parsed.number}`;
+                if (parsed.pages) journalDetails += `, pp. ${parsed.pages}`;
+                infoJournal.textContent = journalDetails;
+            }
+
+            if (parsed.year || parsed.month) {
+                const dateParts = [];
+                if (parsed.month) dateParts.push(parsed.month);
+                if (parsed.year) dateParts.push(parsed.year);
+                infoDate.textContent = dateParts.join(' ');
+            }
+
+            articleInfo.classList.add('visible');
+        }
 
         async function fetchBibTeX() {
             const doi = doiInput.value.trim();
             error.textContent = '';
             output.value = '';
+            articleInfo.classList.remove('visible');
+            infoTitle.textContent = '';
+            infoAuthors.textContent = '';
+            infoJournal.textContent = '';
+            infoDate.textContent = '';
 
             if (!doi) {
                 error.textContent = 'Please enter a DOI';
@@ -137,6 +249,7 @@
 
                 const bibtex = await response.text();
                 output.value = bibtex;
+                updateArticleInfo(bibtex);
             } catch (err) {
                 error.textContent = err.message;
             } finally {
