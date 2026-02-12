@@ -8,6 +8,13 @@ const infoAuthors = document.getElementById('infoAuthors');
 const infoJournal = document.getElementById('infoJournal');
 const infoDate = document.getElementById('infoDate');
 
+function extractDOI(input) {
+    // DOI regex pattern: 10.xxxx/yyyyyyy where xxxx is 4-9 digits and yyyyyyy can include various characters
+    const doiRegex = /(10\.\d{4,9}\/[-._;()/:A-Z0-9]+)/i;
+    const match = input.match(doiRegex);
+    return match ? match[1] : null;
+}
+
 function parseBibTeX(bibtex) {
     const result = {
         title: '',
@@ -100,7 +107,7 @@ function startCooldown() {
 }
 
 async function fetchBibTeX() {
-    const doi = doiInput.value.trim();
+    const input = doiInput.value.trim();
     error.textContent = '';
     output.value = '';
     articleInfo.classList.remove('visible');
@@ -109,8 +116,14 @@ async function fetchBibTeX() {
     infoJournal.textContent = '';
     infoDate.textContent = '';
 
-    if (!doi) {
+    if (!input) {
         error.textContent = 'Please enter a DOI';
+        return;
+    }
+
+    const doi = extractDOI(input);
+    if (!doi) {
+        error.textContent = 'No valid DOI found in input';
         return;
     }
 
