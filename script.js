@@ -77,6 +77,28 @@ function updateArticleInfo(bibtex) {
     articleInfo.classList.add('visible');
 }
 
+let fetchCooldownTimeout;
+let countdownInterval;
+
+function startCooldown() {
+    let remainingSeconds = 10;
+    fetchBtn.disabled = true;
+    fetchBtn.classList.add('cooldown');
+    fetchBtn.textContent = `Wait ${remainingSeconds}s`;
+
+    countdownInterval = setInterval(() => {
+        remainingSeconds--;
+        if (remainingSeconds <= 0) {
+            clearInterval(countdownInterval);
+            fetchBtn.disabled = false;
+            fetchBtn.classList.remove('cooldown');
+            fetchBtn.textContent = 'Get BibTeX';
+        } else {
+            fetchBtn.textContent = `Wait ${remainingSeconds}s`;
+        }
+    }, 1000);
+}
+
 async function fetchBibTeX() {
     const doi = doiInput.value.trim();
     error.textContent = '';
@@ -109,9 +131,11 @@ async function fetchBibTeX() {
         const bibtex = await response.text();
         output.value = bibtex;
         updateArticleInfo(bibtex);
+
+        // Start 10-second cooldown after successful fetch
+        startCooldown();
     } catch (err) {
         error.textContent = err.message;
-    } finally {
         fetchBtn.disabled = false;
         fetchBtn.textContent = 'Get BibTeX';
     }

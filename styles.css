@@ -191,6 +191,15 @@ button:disabled {
     cursor: not-allowed;
 }
 
+button.cooldown {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+button.cooldown:hover {
+    background: #9ca3af;
+}
+
 .output {
     width: 100%;
     min-height: 200px;
