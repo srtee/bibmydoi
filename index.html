@@ -119,6 +119,57 @@
             font-weight: 500;
             color: #374151;
         }
+
+        .output-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 8px 16px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .copy-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .copy-btn:focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+
+        .copy-btn.copied {
+            background: #059669;
+        }
+
+        .copy-btn.copied:hover {
+            background: #047857;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
     </style>
 </head>
 <body>
@@ -134,7 +185,17 @@
             <div><span class="article-info-label">Journal:</span> <span id="infoJournal"></span></div>
             <div><span class="article-info-label">Date:</span> <span id="infoDate"></span></div>
         </div>
-        <textarea id="output" class="output" readonly placeholder="BibTeX will appear here..."></textarea>
+        <div class="output-wrapper">
+            <textarea id="output" class="output" readonly placeholder="BibTeX will appear here..." aria-label="BibTeX output"></textarea>
+            <button id="copyBtn" class="copy-btn" aria-label="Copy BibTeX to clipboard">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span class="copy-text">Copy</span>
+            </button>
+        </div>
+        <div id="copyStatus" class="sr-only" aria-live="polite" aria-atomic="true"></div>
         <div id="error" class="error"></div>
     </div>
 
@@ -263,6 +324,38 @@
         doiInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 fetchBibTeX();
+            }
+        });
+
+        const copyBtn = document.getElementById('copyBtn');
+        const copyStatus = document.getElementById('copyStatus');
+        const copyText = document.querySelector('.copy-text');
+        let copyTimeout;
+
+        copyBtn.addEventListener('click', async () => {
+            const bibtexText = output.value;
+
+            if (!bibtexText) {
+                copyStatus.textContent = 'Nothing to copy';
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(bibtexText);
+                copyText.textContent = 'Copied!';
+                copyBtn.classList.add('copied');
+                copyBtn.setAttribute('aria-label', 'Copied to clipboard');
+                copyStatus.textContent = 'BibTeX copied to clipboard';
+
+                clearTimeout(copyTimeout);
+                copyTimeout = setTimeout(() => {
+                    copyText.textContent = 'Copy';
+                    copyBtn.classList.remove('copied');
+                    copyBtn.setAttribute('aria-label', 'Copy BibTeX to clipboard');
+                }, 2000);
+            } catch (err) {
+                copyStatus.textContent = 'Failed to copy to clipboard';
+                copyText.textContent = 'Failed';
             }
         });
     </script>
