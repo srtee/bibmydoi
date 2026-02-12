@@ -7,12 +7,33 @@ const infoTitle = document.getElementById('infoTitle');
 const infoAuthors = document.getElementById('infoAuthors');
 const infoJournal = document.getElementById('infoJournal');
 const infoDate = document.getElementById('infoDate');
+const infoAbstract = document.getElementById('infoAbstract');
 
 function extractDOI(input) {
     // DOI regex pattern: 10.xxxx/yyyyyyy where xxxx is 4-9 digits and yyyyyyy can include various characters
     const doiRegex = /(10\.\d{4,9}\/[-._;()/:A-Z0-9]+)/i;
     const match = input.match(doiRegex);
     return match ? match[1] : null;
+}
+
+async function fetchAbstract(doi) {
+    try {
+        const response = await fetch(
+            `https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(doi)}?fields=abstract`,
+            {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }
+        );
+        if (!response.ok) {
+            return null;
+        }
+        const data = await response.json();
+        return data.abstract || null;
+    } catch (err) {
+        return null;
+    }
 }
 
 function parseBibTeX(bibtex) {
@@ -81,6 +102,7 @@ function updateArticleInfo(bibtex) {
         infoDate.textContent = dateParts.join(' ');
     }
 
+    infoAbstract.textContent = '';
     articleInfo.classList.add('visible');
 }
 
@@ -126,6 +148,7 @@ async function fetchBibTeX() {
         error.textContent = 'No valid DOI found in input';
         return;
     }
+    infoAbstract.textContent = '';
 
     fetchBtn.disabled = true;
     fetchBtn.textContent = 'Fetching...';
@@ -144,6 +167,14 @@ async function fetchBibTeX() {
         const bibtex = await response.text();
         output.value = bibtex;
         updateArticleInfo(bibtex);
+
+        // Fetch abstract from Semantic Scholar API
+        const abstract = await fetchAbstract(doi);
+        if (abstract) {
+            infoAbstract.textContent = abstract;
+        } else {
+            infoAbstract.textContent = "Abstract couldn't be found on Semantic Scholar";
+        }
 
         // Start 10-second cooldown after successful fetch
         startCooldown();
