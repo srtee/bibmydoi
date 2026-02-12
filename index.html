@@ -20,6 +20,7 @@
             --social-link-hover-bg: #f3f4f6;
             --social-link-hover-color: #2563eb;
             --output-bg: #fafafa;
+            --theme-icon-color: #111111;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -38,6 +39,7 @@
                 --social-link-hover-bg: #4b5563;
                 --social-link-hover-color: #60a5fa;
                 --output-bg: #1f2937;
+                --theme-icon-color: #f9fafb;
             }
         }
 
@@ -56,6 +58,7 @@
             --social-link-hover-bg: #4b5563;
             --social-link-hover-color: #60a5fa;
             --output-bg: #1f2937;
+            --theme-icon-color: #f9fafb;
         }
 
         * {
@@ -145,7 +148,7 @@
         .theme-toggle svg {
             width: 20px;
             height: 20px;
-            stroke: var(--text-color);
+            stroke: var(--theme-icon-color);
         }
 
         .input-group {
