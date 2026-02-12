@@ -8,11 +8,6 @@ const infoAuthors = document.getElementById('infoAuthors');
 const infoJournal = document.getElementById('infoJournal');
 const infoDate = document.getElementById('infoDate');
 
-function getSelectedAPI() {
-    const selected = document.querySelector('input[name="api"]:checked');
-    return selected ? selected.value : 'semantic';
-}
-
 function parseBibTeX(bibtex) {
     const result = {
         title: '',
@@ -106,7 +101,6 @@ function startCooldown() {
 
 async function fetchBibTeX() {
     const doi = doiInput.value.trim();
-    const selectedApi = document.querySelector('input[name="api"]:checked').value;
     error.textContent = '';
     output.value = '';
     articleInfo.classList.remove('visible');
@@ -124,41 +118,17 @@ async function fetchBibTeX() {
     fetchBtn.textContent = 'Fetching...';
 
     try {
-        let bibtex;
-
-        if (selectedApi === 'semantic') {
-            // Fetch from Semantic Scholar API
-            const response = await fetch(`https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(doi)}?fields=citationStyles`, {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch BibTeX: ${response.status}`);
+        const response = await fetch(`https://doi.org/${encodeURIComponent(doi)}`, {
+            headers: {
+                'Accept': 'application/x-bibtex'
             }
+        });
 
-            const data = await response.json();
-            bibtex = data.citationStyles?.bibtex;
-
-            if (!bibtex) {
-                throw new Error('No BibTeX found for this DOI');
-            }
-        } else {
-            // Fetch from DOI.org API
-            const response = await fetch(`https://doi.org/${encodeURIComponent(doi)}`, {
-                headers: {
-                    'Accept': 'application/x-bibtex'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch BibTeX: ${response.status}`);
-            }
-
-            bibtex = await response.text();
+        if (!response.ok) {
+            throw new Error(`Failed to fetch BibTeX: ${response.status}`);
         }
 
+        const bibtex = await response.text();
         output.value = bibtex;
         updateArticleInfo(bibtex);
 

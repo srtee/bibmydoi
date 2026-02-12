@@ -28,17 +28,6 @@
             <input type="text" id="doiInput" name="doi" placeholder="Enter DOI (e.g., 10.1000/xyz123)" autocomplete="off" aria-describedby="error">
             <button id="fetchBtn" type="button">Get BibTeX</button>
         </div>
-        <fieldset class="api-selector">
-            <legend class="sr-only">Select API source</legend>
-            <label class="radio-label">
-                <input type="radio" name="api" value="semantic" checked>
-                <span>Semantic Scholar</span>
-            </label>
-            <label class="radio-label">
-                <input type="radio" name="api" value="doi">
-                <span>DOI.org (no abstract)</span>
-            </label>
-        </fieldset>
         <div id="articleInfo" class="article-info" role="region" aria-live="polite">
             <h2 class="article-info-title" id="infoTitle"></h2>
             <dl>
