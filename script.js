@@ -5,6 +5,7 @@ const error = document.getElementById('error');
 const articleInfo = document.getElementById('articleInfo');
 const abstractContainer = document.getElementById('abstractContainer');
 const infoTitle = document.getElementById('infoTitle');
+const infoTitleLabel = document.getElementById('infoTitleLabel');
 const infoCitation = document.getElementById('infoCitation');
 const infoAbstract = document.getElementById('infoAbstract');
 
@@ -154,6 +155,9 @@ function updateArticleInfo(bibtex) {
 
     if (parsed.title) {
         infoTitle.textContent = parsed.title.replace(/\{\}/g, '');
+        infoTitleLabel.style.display = 'block';
+    } else {
+        infoTitleLabel.style.display = 'none';
     }
 
     // Format citation: [authors]. [journal name], [volume]([issue]):[pages] ([year]).
@@ -233,23 +237,29 @@ function startCooldown() {
 async function fetchBibTeX() {
     const input = doiInput.value.trim();
     error.textContent = '';
+    error.classList.remove('visible');
     output.value = '';
     articleInfo.classList.remove('visible');
     abstractContainer.classList.remove('visible');
     infoTitle.textContent = '';
     infoCitation.textContent = '';
+    infoTitleLabel.style.display = 'none';
+    infoAbstract.textContent = '';
 
     if (!input) {
         error.textContent = 'Please enter a DOI';
+        error.classList.add('visible');
+        doiInput.focus();
         return;
     }
 
     const doi = extractDOI(input);
     if (!doi) {
         error.textContent = 'No valid DOI found in input';
+        error.classList.add('visible');
+        doiInput.focus();
         return;
     }
-    infoAbstract.textContent = '';
 
     fetchBtn.disabled = true;
     fetchBtn.textContent = 'Fetching...';
@@ -304,6 +314,7 @@ async function fetchBibTeX() {
         startCooldown();
     } catch (err) {
         error.textContent = err.message;
+        error.classList.add('visible');
         fetchBtn.disabled = false;
         fetchBtn.textContent = 'Get BibTeX';
     }

@@ -38,12 +38,13 @@
                 <span class="copy-text">Copy</span>
             </button>
         </div>
-        <div id="articleInfo" class="article-info" role="region" aria-live="polite">
-            <h2 class="article-info-title" id="infoTitle"></h2>
+        <div id="articleInfo" class="article-info" role="region" aria-live="polite" aria-labelledby="infoTitleLabel">
+            <h2 class="article-info-title" id="infoTitleLabel">Article Information</h2>
+            <h3 class="article-info-title" id="infoTitle"></h3>
             <p class="article-info-citation" id="infoCitation"></p>
         </div>
-        <div id="abstractContainer" class="abstract-container" role="region" aria-live="polite">
-            <dt class="article-info-label">Abstract</dt>
+        <div id="abstractContainer" class="abstract-container" role="region" aria-live="polite" aria-labelledby="abstractLabel">
+            <h2 id="abstractLabel" class="sr-only">Abstract</h2>
             <div id="infoAbstract" class="abstract-content"></div>
         </div>
         <div id="copyStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -65,7 +66,7 @@
                 </a>
             </div>
         </footer>
-    </div>
+    </main>
 
     <script src="script.js?v=4"></script>
 </body>
