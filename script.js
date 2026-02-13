@@ -16,6 +16,30 @@ function extractDOI(input) {
     return match ? match[1] : null;
 }
 
+async function fetchAbstractFromCrossref(doi) {
+    try {
+        const response = await fetch(
+            `https://api.crossref.org/works/${encodeURIComponent(doi)}`,
+            {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }
+        );
+        if (!response.ok) {
+            return null;
+        }
+        const data = await response.json();
+        // Crossref stores abstract in message.items[0].abstract
+        if (data.message && data.message.items && data.message.items[0]) {
+            return data.message.items[0].abstract || null;
+        }
+        return null;
+    } catch (err) {
+        return null;
+    }
+}
+
 async function fetchAbstract(doi) {
     try {
         const response = await fetch(
@@ -168,12 +192,16 @@ async function fetchBibTeX() {
         output.value = bibtex;
         updateArticleInfo(bibtex);
 
-        // Fetch abstract from Semantic Scholar API
-        const abstract = await fetchAbstract(doi);
+        // Fetch abstract from Semantic Scholar API, fall back to Crossref API
+        let abstract = await fetchAbstract(doi);
+        if (!abstract) {
+            // Try Crossref API as fallback
+            abstract = await fetchAbstractFromCrossref(doi);
+        }
         if (abstract) {
             infoAbstract.textContent = abstract;
         } else {
-            infoAbstract.textContent = "Abstract couldn't be found on Semantic Scholar";
+            infoAbstract.textContent = "Abstract couldn't be found on Semantic Scholar or Crossref";
         }
 
         // Start 10-second cooldown after successful fetch
