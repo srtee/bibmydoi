@@ -60,6 +60,61 @@ async function fetchAbstract(doi) {
     }
 }
 
+async function fetchPagesFromCrossref(doi) {
+    try {
+        const response = await fetch(
+            `https://api.crossref.org/works/${encodeURIComponent(doi)}`,
+            {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }
+        );
+        if (!response.ok) {
+            return null;
+        }
+        const data = await response.json();
+        if (data.message && data.message.page) {
+            return data.message.page;
+        }
+        return null;
+    } catch (err) {
+        return null;
+    }
+}
+
+function addPagesToBibTeX(bibtex, pages) {
+    if (!pages) return bibtex;
+
+    // Check if pages field already exists
+    const pagesRegex = /pages\s*=\s*(?:\{([^}]*)\}|"([^"]*)")/i;
+    const match = bibtex.match(pagesRegex);
+
+    if (match) {
+        // Update existing pages field
+        const currentPages = match[1] || match[2];
+        return bibtex.replace(match[0], `pages = {${pages}}`);
+    } else {
+        // Add pages field after the year field (common convention)
+        const yearRegex = /year\s*=\s*(?:\{([^}]*)\}|"([^"]*)")/i;
+        const yearMatch = bibtex.match(yearRegex);
+
+        if (yearMatch) {
+            return bibtex.replace(yearMatch[0], `${yearMatch[0]},\n  pages = {${pages}}`);
+        } else {
+            // If no year field, add pages after the first field
+            const firstFieldRegex = /(\w+)\s*=\s*(?:\{([^}]*)\}|"([^"]*)")/;
+            const firstMatch = bibtex.match(firstFieldRegex);
+
+            if (firstMatch) {
+                return bibtex.replace(firstMatch[0], `${firstMatch[0]},\n  pages = {${pages}}`);
+            }
+        }
+    }
+
+    return bibtex;
+}
+
 function parseBibTeX(bibtex) {
     const result = {
         title: '',
@@ -188,7 +243,21 @@ async function fetchBibTeX() {
             throw new Error(`Failed to fetch BibTeX: ${response.status}`);
         }
 
-        const bibtex = await response.text();
+        let bibtex = await response.text();
+
+        // Check if BibTeX has page numbers
+        const parsed = parseBibTeX(bibtex);
+        let pages = parsed.pages;
+
+        if (!pages) {
+            // Try Crossref API for page numbers
+            pages = await fetchPagesFromCrossref(doi);
+        }
+
+        if (pages) {
+            bibtex = addPagesToBibTeX(bibtex, pages);
+        }
+
         output.value = bibtex;
         updateArticleInfo(bibtex);
 
