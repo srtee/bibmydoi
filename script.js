@@ -4,9 +4,7 @@ const output = document.getElementById('output');
 const error = document.getElementById('error');
 const articleInfo = document.getElementById('articleInfo');
 const infoTitle = document.getElementById('infoTitle');
-const infoAuthors = document.getElementById('infoAuthors');
-const infoJournal = document.getElementById('infoJournal');
-const infoDate = document.getElementById('infoDate');
+const infoCitation = document.getElementById('infoCitation');
 const infoAbstract = document.getElementById('infoAbstract');
 
 function extractDOI(input) {
@@ -157,6 +155,9 @@ function updateArticleInfo(bibtex) {
         infoTitle.textContent = parsed.title.replace(/\{\}/g, '');
     }
 
+    // Format citation: [authors]. [journal name], [volume]([issue]):[pages] ([year]).
+    const citationParts = [];
+
     if (parsed.author) {
         // Format authors: "Last, First and Last, First" -> "First Last, First Last"
         const authors = parsed.author
@@ -170,23 +171,33 @@ function updateArticleInfo(bibtex) {
                 return author.trim();
             })
             .join(', ');
-        infoAuthors.textContent = authors;
+        citationParts.push(`${authors}.`);
     }
 
     if (parsed.journal) {
-        let journalDetails = parsed.journal.replace(/\{\}/g, '');
-        if (parsed.volume) journalDetails += `, vol. ${parsed.volume}`;
-        if (parsed.number) journalDetails += `, no. ${parsed.number}`;
-        if (parsed.pages) journalDetails += `, pp. ${parsed.pages}`;
-        infoJournal.textContent = journalDetails;
+        citationParts.push(parsed.journal.replace(/\{\}/g, ''));
     }
 
-    if (parsed.year || parsed.month) {
-        const dateParts = [];
-        if (parsed.month) dateParts.push(parsed.month);
-        if (parsed.year) dateParts.push(parsed.year);
-        infoDate.textContent = dateParts.join(' ');
+    if (parsed.volume || parsed.number || parsed.pages) {
+        let volumeIssue = '';
+        if (parsed.volume) {
+            volumeIssue += parsed.volume;
+        }
+        if (parsed.number) {
+            volumeIssue += `(${parsed.number})`;
+        }
+        citationParts.push(volumeIssue);
     }
+
+    if (parsed.pages) {
+        citationParts.push(`${parsed.pages}`);
+    }
+
+    if (parsed.year) {
+        citationParts.push(`(${parsed.year})`);
+    }
+
+    infoCitation.textContent = citationParts.join(' ');
 
     infoAbstract.textContent = '';
     articleInfo.classList.add('visible');
@@ -220,9 +231,7 @@ async function fetchBibTeX() {
     output.value = '';
     articleInfo.classList.remove('visible');
     infoTitle.textContent = '';
-    infoAuthors.textContent = '';
-    infoJournal.textContent = '';
-    infoDate.textContent = '';
+    infoCitation.textContent = '';
 
     if (!input) {
         error.textContent = 'Please enter a DOI';
