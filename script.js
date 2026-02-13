@@ -417,3 +417,18 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e)
 
 // Initialize theme on page load
 initTheme();
+
+// Handle URL query parameters on page load
+function handleUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const doiParam = urlParams.get('input');
+
+    if (doiParam) {
+        doiInput.value = doiParam;
+        // Auto-fetch if a DOI was provided in the URL
+        fetchBibTeX();
+    }
+}
+
+// Check URL params on page load
+handleUrlParams();
