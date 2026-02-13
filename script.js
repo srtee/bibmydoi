@@ -176,10 +176,8 @@ function updateArticleInfo(bibtex) {
     }
 
     if (parsed.journal) {
-        citationParts.push(parsed.journal.replace(/\{\}/g, ''));
-    }
-
-    if (parsed.volume || parsed.number || parsed.pages) {
+      if (parsed.volume || parsed.number || parsed.pages) {
+        citationParts.push(`${parsed.journal.replace(/\{\}/g, '')},`);
         let volumeIssue = '';
         if (parsed.volume) {
             volumeIssue += parsed.volume;
@@ -187,11 +185,18 @@ function updateArticleInfo(bibtex) {
         if (parsed.number) {
             volumeIssue += `(${parsed.number})`;
         }
-        citationParts.push(volumeIssue);
-    }
-
-    if (parsed.pages) {
-        citationParts.push(`${parsed.pages}`);
+        if (parsed.pages) {
+          volumeIssue += ":";
+          citationParts.push(volumeIssue);
+          citationParts.push(`${parsed.pages}`);
+        }
+        else {
+          citationParts.push(volumeIssue);
+        }
+      }
+      else {
+        citationParts.push(parsed.journal.replace(/\{\}/g, ''));
+      }
     }
 
     if (parsed.year) {
