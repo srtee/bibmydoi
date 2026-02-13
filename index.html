@@ -28,14 +28,6 @@
             <input type="text" id="doiInput" name="doi" placeholder="Enter DOI or URL (e.g., 10.1000/xyz123 or https://example.com/10.1000/xyz123)" autocomplete="off" aria-describedby="error">
             <button id="fetchBtn" type="button">Get BibTeX</button>
         </div>
-        <div id="articleInfo" class="article-info" role="region" aria-live="polite">
-            <h2 class="article-info-title" id="infoTitle"></h2>
-            <p class="article-info-citation" id="infoCitation"></p>
-            <div class="article-info-abstract">
-                <dt class="article-info-label">Abstract</dt>
-                <dd id="infoAbstract"></dd>
-            </div>
-        </div>
         <div class="output-wrapper">
             <textarea id="output" class="output" readonly placeholder="BibTeX will appear here..." aria-label="BibTeX output"></textarea>
             <button id="copyBtn" class="copy-btn" aria-label="Copy BibTeX to clipboard">
@@ -45,6 +37,14 @@
                 </svg>
                 <span class="copy-text">Copy</span>
             </button>
+        </div>
+        <div id="articleInfo" class="article-info" role="region" aria-live="polite">
+            <h2 class="article-info-title" id="infoTitle"></h2>
+            <p class="article-info-citation" id="infoCitation"></p>
+        </div>
+        <div id="abstractContainer" class="abstract-container" role="region" aria-live="polite">
+            <dt class="article-info-label">Abstract</dt>
+            <div id="infoAbstract" class="abstract-content"></div>
         </div>
         <div id="copyStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
         <div id="error" class="error" role="alert" aria-live="polite" aria-atomic="true"></div>
@@ -67,6 +67,6 @@
         </footer>
     </div>
 
-    <script src="script.js?v=3"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>

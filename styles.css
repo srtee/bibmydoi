@@ -359,3 +359,124 @@ button.cooldown:hover {
     outline: 2px solid #2563eb;
     outline-offset: 2px;
 }
+
+.article-info-citation {
+    margin: 0;
+    color: var(--text-color);
+}
+
+.article-container {
+    background: var(--article-info-bg);
+    border: 1px solid var(--article-info-border);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+}
+
+.article-container.visible {
+    display: block;
+}
+
+.abstract-container {
+    background: var(--article-info-bg);
+    border: 1px solid var(--article-info-border);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+}
+
+.abstract-container.visible {
+    display: block;
+}
+
+.abstract-content {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 12px;
+    background: var(--container-bg);
+    border-radius: 4px;
+    color: var(--text-color);
+    margin-top: 8px;
+}
+
+.abstract-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.abstract-content::-webkit-scrollbar-track {
+    background: var(--bg-color);
+    border-radius: 4px;
+}
+
+.abstract-content::-webkit-scrollbar-thumb {
+    background: var(--input-border);
+    border-radius: 4px;
+}
+
+.abstract-content::-webkit-scrollbar-thumb:hover {
+    background: var(--text-color);
+}
+
+.article-info-citation {
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+.abstract-container {
+    background: var(--article-info-bg);
+    border: 1px solid var(--article-info-border);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+}
+
+.abstract-container.visible {
+    display: block;
+}
+
+.abstract-container dt {
+    display: inline;
+    font-weight: 500;
+    color: var(--article-info-label);
+}
+
+.abstract-container dt::after {
+    content: ':';
+}
+
+.abstract-content {
+    display: block;
+    margin-top: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    color: var(--text-color);
+    padding-right: 8px;
+}
+
+/* Custom scrollbar for abstract content */
+.abstract-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.abstract-content::-webkit-scrollbar-track {
+    background: var(--container-bg);
+    border-radius: 4px;
+}
+
+.abstract-content::-webkit-scrollbar-thumb {
+    background: var(--input-border);
+    border-radius: 4px;
+}
+
+.abstract-content::-webkit-scrollbar-thumb:hover {
+    background: var(--text-color);
+}

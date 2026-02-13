@@ -3,6 +3,7 @@ const fetchBtn = document.getElementById('fetchBtn');
 const output = document.getElementById('output');
 const error = document.getElementById('error');
 const articleInfo = document.getElementById('articleInfo');
+const abstractContainer = document.getElementById('abstractContainer');
 const infoTitle = document.getElementById('infoTitle');
 const infoCitation = document.getElementById('infoCitation');
 const infoAbstract = document.getElementById('infoAbstract');
@@ -199,7 +200,6 @@ function updateArticleInfo(bibtex) {
 
     infoCitation.textContent = citationParts.join(' ');
 
-    infoAbstract.textContent = '';
     articleInfo.classList.add('visible');
 }
 
@@ -230,6 +230,7 @@ async function fetchBibTeX() {
     error.textContent = '';
     output.value = '';
     articleInfo.classList.remove('visible');
+    abstractContainer.classList.remove('visible');
     infoTitle.textContent = '';
     infoCitation.textContent = '';
 
@@ -288,8 +289,10 @@ async function fetchBibTeX() {
         }
         if (abstract) {
             infoAbstract.textContent = abstract;
+            abstractContainer.classList.add('visible');
         } else {
             infoAbstract.textContent = "Abstract couldn't be found on Semantic Scholar or Crossref";
+            abstractContainer.classList.add('visible');
         }
 
         // Start 10-second cooldown after successful fetch
