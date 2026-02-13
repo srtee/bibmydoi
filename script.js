@@ -74,8 +74,15 @@ async function fetchPagesFromCrossref(doi) {
             return null;
         }
         const data = await response.json();
-        if (data.message && data.message.page) {
-            return data.message.page;
+        if (data.message) {
+            // Check for page field first
+            if (data.message.page) {
+                return data.message.page;
+            }
+            // Some journals use article-number instead of pages
+            if (data.message['article-number']) {
+                return data.message['article-number'];
+            }
         }
         return null;
     } catch (err) {
@@ -251,11 +258,14 @@ async function fetchBibTeX() {
 
         if (!pages) {
             // Try Crossref API for page numbers
+            console.log('No pages in BibTeX, fetching from Crossref...');
             pages = await fetchPagesFromCrossref(doi);
+            console.log('Crossref returned pages:', pages);
         }
 
         if (pages) {
             bibtex = addPagesToBibTeX(bibtex, pages);
+            console.log('Added pages to BibTeX');
         }
 
         output.value = bibtex;
